@@ -6,6 +6,7 @@ public class Multa {
     private String multa;
     private Double monto;
     private String correo;
+    private int punto;
 
     public String getDni() {
         return dni;
@@ -37,5 +38,13 @@ public class Multa {
 
     public void setCorreo(String correo) {
         this.correo = correo;
+    }
+
+    public int getPunto() {
+        return punto;
+    }
+
+    public void setPunto(int punto) {
+        this.punto = punto;
     }
 }

@@ -16,7 +16,7 @@ public class Servicio {
         try {
             Connection con = Conexion.startConeccion();
             Statement statement = con.createStatement();
-            String query = "SELECT * FROM multa";
+            String query = "SELECT * FROM multa ORDER BY monto DESC";
             ResultSet resultSet = statement.executeQuery(query);
             
             Multa objMulta;
@@ -26,11 +26,13 @@ public class Servicio {
                 String tipoMulta = resultSet.getString("tipo_multa");
                 Double multa     = resultSet.getDouble("monto");
                 String correo    = resultSet.getString("correo");
+                int punto        = resultSet.getInt("punto");
                 
                 objMulta.setDni(dni);
                 objMulta.setMulta(tipoMulta);
                 objMulta.setMonto(multa);
                 objMulta.setCorreo(correo);
+                objMulta.setPunto(punto);
                 lstMultas.add(objMulta);
             }
         } catch (Exception e) {
@@ -53,12 +55,13 @@ public class Servicio {
                 return rpta;
             }
             Connection con = Conexion.startConeccion();
-            String query = "INSERT INTO `sat`.`multa` (`dni`, `tipo_multa`, `monto`, `correo`) VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO `sat`.`multa` (`dni`, `tipo_multa`, `monto`, `correo`, `punto`) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, multa.getDni());
             ps.setString(2, multa.getMulta());
             ps.setDouble(3, multa.getMonto());
             ps.setString(4, multa.getCorreo());
+            ps.setInt(5, multa.getPunto());
             ps.executeUpdate();
             rpta.setCodigo(0); // 0 = no error
             rpta.setMsj("Se registró la multa.");

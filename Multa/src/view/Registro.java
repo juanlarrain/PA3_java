@@ -9,6 +9,8 @@ import java.awt.List;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import logica.Servicio;
 import model.Multa;
@@ -56,6 +58,9 @@ public class Registro extends javax.swing.JFrame {
         tbMultas = new javax.swing.JTable();
         btnRegistrar = new javax.swing.JButton();
         btnReporte1 = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        txtPunto = new javax.swing.JTextField();
+        btnRefresh = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -63,7 +68,7 @@ public class Registro extends javax.swing.JFrame {
 
         jLabel2.setText("Tipo");
 
-        cmbTipos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Alta velocidad", "Luz roja", "Mal estacionado", "Pico placa" }));
+        cmbTipos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "::: Selec. Multa :::", "Alta velocidad", "Luz roja", "Mal estacionado", "Pico placa" }));
 
         jLabel3.setText("Monto");
 
@@ -71,15 +76,23 @@ public class Registro extends javax.swing.JFrame {
 
         tbMultas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "DNI", "Multa", "Monto", "Correo"
+                "#", "DNI", "Multa", "Monto", "Correo", "Puntos"
             }
         ));
+        tbMultas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbMultasMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tbMultasMousePressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(tbMultas);
 
         btnRegistrar.setText("Registrar");
@@ -91,13 +104,30 @@ public class Registro extends javax.swing.JFrame {
 
         btnReporte1.setText("Reporte");
 
+        jLabel5.setText("Punto");
+
+        btnRefresh.setText("Refrescar");
+        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefreshActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
+                .addGap(19, 19, 19))
             .addGroup(layout.createSequentialGroup()
                 .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtPunto, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(layout.createSequentialGroup()
@@ -113,7 +143,10 @@ public class Registro extends javax.swing.JFrame {
                                 .addComponent(btnReporte1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnRegistrar)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnRegistrar)
+                                .addGap(58, 58, 58)
+                                .addComponent(btnRefresh))
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(jLabel2)
@@ -122,10 +155,8 @@ public class Registro extends javax.swing.JFrame {
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(jLabel4)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtCorreo))))
-                        .addGap(0, 108, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap())
+                                    .addComponent(txtCorreo))))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -142,13 +173,17 @@ public class Registro extends javax.swing.JFrame {
                     .addComponent(txtMonto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
                     .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30)
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtPunto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnRegistrar)
-                    .addComponent(btnReporte1))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(17, Short.MAX_VALUE))
+                    .addComponent(btnReporte1)
+                    .addComponent(btnRefresh))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -162,14 +197,20 @@ public class Registro extends javax.swing.JFrame {
             String multa  = cmbTipos.getSelectedItem().toString();
             String montoTexto = txtMonto.getText();
             // validar
-            Double monto  = Double.parseDouble(montoTexto);
+            
             String correo = txtCorreo.getText();
+            int punto     = Integer.parseInt(txtPunto.getText());
+            
+            //validarCampos();
+            
+            Double monto  = Double.parseDouble(montoTexto);
             
             Multa objMulta = new Multa();
             objMulta.setDni(dni);
             objMulta.setMulta(multa);
             objMulta.setMonto(monto);
             objMulta.setCorreo(correo);
+            objMulta.setPunto(punto);
 
             Servicio servicio = new Servicio();
             Respuesta rpta = servicio.insertarMulta(objMulta);
@@ -177,6 +218,7 @@ public class Registro extends javax.swing.JFrame {
             if(rpta.getCodigo() == 0) {
                 lstMultas.add(objMulta);
                 llenarTabla();
+                limpiarForm();
             }
             JOptionPane.showMessageDialog(this, rpta.getMsj());
         } catch (Exception e) {
@@ -186,13 +228,50 @@ public class Registro extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
-    private void llenarTabla() {
-        DefaultTableModel model = new DefaultTableModel(new String[]{"DNI", "Multa", "Monto", "Correo"}, 0);
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+        // TODO add your handling code here:
+        Servicio servicio = new Servicio();
+        lstMultas = servicio.getMultas();
+        llenarTabla();
+    }//GEN-LAST:event_btnRefreshActionPerformed
 
+    private void tbMultasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbMultasMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tbMultasMouseClicked
+
+    private void tbMultasMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbMultasMousePressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tbMultasMousePressed
+
+    private void limpiarForm() {
+        txtDNI.setText(null);
+        cmbTipos.setSelectedIndex(0);
+        txtMonto.setText(null);
+        txtCorreo.setText(null);
+        txtPunto.setText(null);
+    }
+    
+    private void llenarTabla() {
+        DefaultTableModel model = new DefaultTableModel(new String[]{"#", "DNI", "Multa", "Monto", "Correo", "Punto"}, 0);
+        int i = 1;
         for(Multa m : lstMultas) {
-            model.addRow(new Object[]{m.getDni(), m.getMulta(), m.getMonto(), m.getCorreo()});
+            model.addRow(new Object[]{i, m.getDni(), m.getMulta(), m.getMonto(), m.getCorreo(), m.getPunto()});
+            i++;
         }
         tbMultas = new JTable(model);
+        tbMultas.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent event) {
+                // do some actions here, for example
+                // print first column value from selected row
+//                JTable source = (JTable)evt.getSource();
+//                int row = source.rowAtPoint( evt.getPoint() );
+//                int column = tbMultas.columnAtPoint( event. );
+//                String s = tbMultas.getModel().getValueAt(tbMultas.getSelectedRow(), tbMultas.getcol  )+"";
+                //System.out.println(tbMultas.getValueAt(tbMultas.getSelectedRow(), 0).toString());
+                //System.err.println(tbMultas.getSelectedRow());
+                //System.err.println(event.);
+            }
+        });
         jScrollPane1.setViewportView(tbMultas);
     }
     /**
@@ -231,6 +310,7 @@ public class Registro extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnRegistrar;
     private javax.swing.JButton btnReporte1;
     private javax.swing.JComboBox<String> cmbTipos;
@@ -238,10 +318,12 @@ public class Registro extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tbMultas;
     private javax.swing.JTextField txtCorreo;
     private javax.swing.JTextField txtDNI;
     private javax.swing.JTextField txtMonto;
+    private javax.swing.JTextField txtPunto;
     // End of variables declaration//GEN-END:variables
 }
