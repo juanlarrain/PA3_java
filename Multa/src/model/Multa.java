@@ -2,6 +2,7 @@ package model;
 
 public class Multa {
     
+    private int idMulta;
     private String dni;
     private String multa;
     private Double monto;
@@ -46,5 +47,13 @@ public class Multa {
 
     public void setPunto(int punto) {
         this.punto = punto;
+    }
+
+    public int getIdMulta() {
+        return idMulta;
+    }
+
+    public void setIdMulta(int idMulta) {
+        this.idMulta = idMulta;
     }
 }

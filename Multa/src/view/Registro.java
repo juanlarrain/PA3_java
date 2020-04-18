@@ -6,15 +6,28 @@
 package view;
 
 import java.awt.List;
+import java.awt.event.ActionEvent;
+import static java.nio.file.Files.delete;
 import java.util.ArrayList;
+import java.util.Optional;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import logica.Conexion;
 import logica.Servicio;
 import model.Multa;
 import model.Respuesta;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -28,6 +41,7 @@ public class Registro extends javax.swing.JFrame {
      */
     public Registro() {
         initComponents();
+        initComponents2();
         Servicio servicio = new Servicio();
         lstMultas = servicio.getMultas();
         if(lstMultas == null) {
@@ -56,11 +70,13 @@ public class Registro extends javax.swing.JFrame {
         txtCorreo = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbMultas = new javax.swing.JTable();
-        btnRegistrar = new javax.swing.JButton();
+        btnBorrar = new javax.swing.JButton();
         btnReporte1 = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         txtPunto = new javax.swing.JTextField();
         btnRefresh = new javax.swing.JButton();
+        btnRegistrar = new javax.swing.JButton();
+        lbDniError = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -76,33 +92,37 @@ public class Registro extends javax.swing.JFrame {
 
         tbMultas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
-                "#", "DNI", "Multa", "Monto", "Correo", "Puntos"
+                "#", "DNI", "Multa", "Monto", "Correo", "Puntos", "ID"
             }
-        ));
-        tbMultas.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tbMultasMouseClicked(evt);
-            }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                tbMultasMousePressed(evt);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
+        tbMultas.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tbMultas);
 
-        btnRegistrar.setText("Registrar");
-        btnRegistrar.addActionListener(new java.awt.event.ActionListener() {
+        btnBorrar.setText("Borrar");
+        btnBorrar.setEnabled(false);
+        btnBorrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRegistrarActionPerformed(evt);
+                btnBorrarActionPerformed(evt);
             }
         });
 
         btnReporte1.setText("Reporte");
+        btnReporte1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReporte1ActionPerformed(evt);
+            }
+        });
 
         jLabel5.setText("Punto");
 
@@ -112,6 +132,16 @@ public class Registro extends javax.swing.JFrame {
                 btnRefreshActionPerformed(evt);
             }
         });
+
+        btnRegistrar.setText("Registrar");
+        btnRegistrar.setEnabled(false);
+        btnRegistrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegistrarActionPerformed(evt);
+            }
+        });
+
+        lbDniError.setForeground(new java.awt.Color(255, 51, 51));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -129,34 +159,34 @@ public class Registro extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(txtPunto, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnReporte1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnRegistrar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnBorrar))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel3)
                                     .addComponent(jLabel1))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtDNI, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txtMonto, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(55, 55, 55))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(btnReporte1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtDNI, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+                                    .addComponent(txtMonto, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+                                    .addComponent(lbDniError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnRegistrar)
-                                .addGap(58, 58, 58)
-                                .addComponent(btnRefresh))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel2)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(cmbTipos, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel4)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtCorreo))))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(jLabel2)
+                                .addGap(18, 18, 18)
+                                .addComponent(cmbTipos, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtCorreo))
+                            .addComponent(btnRefresh))))
+                .addContainerGap(100, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -167,7 +197,9 @@ public class Registro extends javax.swing.JFrame {
                     .addComponent(txtDNI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(cmbTipos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(27, 27, 27)
+                .addGap(7, 7, 7)
+                .addComponent(lbDniError)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(txtMonto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -179,21 +211,116 @@ public class Registro extends javax.swing.JFrame {
                     .addComponent(txtPunto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnRegistrar)
+                    .addComponent(btnBorrar)
                     .addComponent(btnReporte1)
-                    .addComponent(btnRefresh))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                    .addComponent(btnRefresh)
+                    .addComponent(btnRegistrar))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void initComponents2() {
+        txtDNI.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+              warn();
+            }
+            public void removeUpdate(DocumentEvent e) {
+              warn();
+            }
+            public void insertUpdate(DocumentEvent e) {
+              warn();
+            }
+
+            public void warn() {
+                String dni = txtDNI.getText();
+                btnRegistrar.setEnabled(false);
+                if(dni.length() == 0) {
+                    lbDniError.setText(null);
+                    return;
+                }
+                if(!dni.matches("[0-9]+")) {
+                    lbDniError.setText("El número de DNI es incorrecto.");
+                    return;
+                } else {
+                    lbDniError.setText(null);
+                }
+                if(dni.length() != 8) {
+                    lbDniError.setText("El número de DNI tiene que ser 8 caracteres.");
+                    return;
+                } else {
+                    lbDniError.setText(null);
+                }
+                btnRegistrar.setEnabled(true);
+            }
+        });
+    }
     
+    int idMultaModif = 0;
+    
+    private void setearDatos() {
+        String dni    = tbMultas.getModel().getValueAt(tbMultas.getSelectedRow(), 1  )+"";
+        String multa  = tbMultas.getModel().getValueAt(tbMultas.getSelectedRow(), 2  )+"";
+        String monto  = tbMultas.getModel().getValueAt(tbMultas.getSelectedRow(), 3 )+"";
+        String correo = tbMultas.getModel().getValueAt(tbMultas.getSelectedRow(), 4  )+"";
+        String punto  = tbMultas.getModel().getValueAt(tbMultas.getSelectedRow(), 5  )+"";
+        String idMulta = tbMultas.getModel().getValueAt(tbMultas.getSelectedRow(), 6  )+"";
+        System.err.println(dni+" - "+multa+" - "+monto+" - "+correo+" - "+punto+" - "+idMulta);
+        idMultaModif = Integer.parseInt(idMulta);
+        txtDNI.setText(dni);
+        txtDNI.setEnabled(false);
+        cmbTipos.setSelectedItem(multa);
+        txtMonto.setText(monto);
+        txtCorreo.setText(correo);
+        txtPunto.setText(punto);
+        btnRegistrar.setText("Actualizar");
+        btnBorrar.setEnabled(true);
+    }
+    
+    private void btnBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBorrarActionPerformed
+        // TODO add your handling code here:
+        int dialogButton = JOptionPane.YES_NO_OPTION;
+        int dialogResult = JOptionPane.showConfirmDialog (null, "¿Estas seguro de borrar la muta?", "Warning", dialogButton);
+        if(dialogResult == JOptionPane.YES_OPTION){
+            Servicio servicio = new Servicio();
+            Respuesta rpta = new Respuesta();
+            rpta = servicio.borrarMulta(idMultaModif);
+            System.err.println(rpta.toString());
+            if(rpta.getCodigo() == 0) {
+                for(Multa m : lstMultas) {
+                    if(m.getIdMulta() == idMultaModif) {
+                        lstMultas.remove(m);
+                        break;
+                    }
+                }
+                limpiarForm();
+                llenarTabla();
+            }
+            JOptionPane.showMessageDialog(this, rpta.getMsj());
+        }
+    }//GEN-LAST:event_btnBorrarActionPerformed
+
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+        // TODO add your handling code here:
+        Servicio servicio = new Servicio();
+        lstMultas = servicio.getMultas();
+        llenarTabla();
+    }//GEN-LAST:event_btnRefreshActionPerformed
+
     private void btnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActionPerformed
         // TODO add your handling code here:
         try {
-            String dni    = txtDNI.getText();
+            String dni = txtDNI.getText();
+            if(!dni.matches("[0-9]+")) {
+                lbDniError.setText("El número de DNI es incorrecto.");
+                return;
+            }
+            if(dni.length() != 8) {
+                lbDniError.setText("El número de DNI tiene que ser 8 caracteres.");
+                return;
+            }
             String multa  = cmbTipos.getSelectedItem().toString();
             String montoTexto = txtMonto.getText();
             // validar
@@ -213,35 +340,50 @@ public class Registro extends javax.swing.JFrame {
             objMulta.setPunto(punto);
 
             Servicio servicio = new Servicio();
-            Respuesta rpta = servicio.insertarMulta(objMulta);
+            Respuesta rpta = new Respuesta();
+            if(idMultaModif == 0) {
+                rpta = servicio.insertarMulta(objMulta);
+            } else {
+                objMulta.setIdMulta(idMultaModif);
+                rpta = servicio.actualizarMulta(objMulta);
+            }
             System.err.println(rpta.toString());
             if(rpta.getCodigo() == 0) {
-                lstMultas.add(objMulta);
-                llenarTabla();
+                if(idMultaModif == 0) {
+                    lstMultas.add(objMulta);
+                } else {
+                    for(Multa m : lstMultas) {
+                        if(m.getIdMulta() == objMulta.getIdMulta()) {
+                            m.setCorreo(correo);
+                            m.setMonto(monto);
+                            m.setMulta(multa);
+                            m.setPunto(punto);
+                            break;
+                        }
+                    }
+                }
                 limpiarForm();
+                llenarTabla();
             }
             JOptionPane.showMessageDialog(this, rpta.getMsj());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
-    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+    private void btnReporte1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReporte1ActionPerformed
         // TODO add your handling code here:
-        Servicio servicio = new Servicio();
-        lstMultas = servicio.getMultas();
-        llenarTabla();
-    }//GEN-LAST:event_btnRefreshActionPerformed
-
-    private void tbMultasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbMultasMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tbMultasMouseClicked
-
-    private void tbMultasMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbMultasMousePressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tbMultasMousePressed
+        try {
+            JasperReport jr = (JasperReport) JRLoader.loadObject(Registro.class.getResource("../reportes/PieChart.jasper"));
+//            Map parametros = new HashMap<String, Object>();
+//            parametros.put("PRECIO", 1200);
+//            parametros.put("PRECIO2", 3300);
+            JasperPrint jp = JasperFillManager.fillReport(jr, null, Conexion.startConeccion());
+            JasperViewer jv = new JasperViewer(jp);
+            jv.show();
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_btnReporte1ActionPerformed
 
     private void limpiarForm() {
         txtDNI.setText(null);
@@ -249,29 +391,31 @@ public class Registro extends javax.swing.JFrame {
         txtMonto.setText(null);
         txtCorreo.setText(null);
         txtPunto.setText(null);
+        btnRegistrar.setText("Registrar");
+        btnBorrar.setEnabled(false);
+        txtDNI.setEnabled(true);
     }
     
     private void llenarTabla() {
-        DefaultTableModel model = new DefaultTableModel(new String[]{"#", "DNI", "Multa", "Monto", "Correo", "Punto"}, 0);
+        DefaultTableModel model = new DefaultTableModel(new String[]{"#", "DNI", "Multa", "Monto", "Correo", "Punto", "Id"}, 0);
+        
+//        DefaultTableModel model = (DefaultTableModel) tbMultas.getModel();
+//        model.setNumRows(0);
         int i = 1;
         for(Multa m : lstMultas) {
-            model.addRow(new Object[]{i, m.getDni(), m.getMulta(), m.getMonto(), m.getCorreo(), m.getPunto()});
+            model.addRow(new Object[]{i, m.getDni(), m.getMulta(), m.getMonto(), m.getCorreo(), m.getPunto(), m.getIdMulta()});
             i++;
         }
         tbMultas = new JTable(model);
-        tbMultas.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+        tbMultas.removeColumn(tbMultas.getColumnModel().getColumn(6));
+        ListSelectionListener lel = new ListSelectionListener(){
             public void valueChanged(ListSelectionEvent event) {
-                // do some actions here, for example
-                // print first column value from selected row
-//                JTable source = (JTable)evt.getSource();
-//                int row = source.rowAtPoint( evt.getPoint() );
-//                int column = tbMultas.columnAtPoint( event. );
-//                String s = tbMultas.getModel().getValueAt(tbMultas.getSelectedRow(), tbMultas.getcol  )+"";
-                //System.out.println(tbMultas.getValueAt(tbMultas.getSelectedRow(), 0).toString());
-                //System.err.println(tbMultas.getSelectedRow());
-                //System.err.println(event.);
+                if(!event.getValueIsAdjusting()) {
+                    setearDatos();
+                }
             }
-        });
+        };
+        tbMultas.getSelectionModel().addListSelectionListener(lel);
         jScrollPane1.setViewportView(tbMultas);
     }
     /**
@@ -310,6 +454,7 @@ public class Registro extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBorrar;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnRegistrar;
     private javax.swing.JButton btnReporte1;
@@ -320,6 +465,7 @@ public class Registro extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lbDniError;
     private javax.swing.JTable tbMultas;
     private javax.swing.JTextField txtCorreo;
     private javax.swing.JTextField txtDNI;

@@ -17,17 +17,19 @@ public class Servicio {
             Connection con = Conexion.startConeccion();
             Statement statement = con.createStatement();
             String query = "SELECT * FROM multa ORDER BY monto DESC";
-            ResultSet resultSet = statement.executeQuery(query);
+            ResultSet rs = statement.executeQuery(query);
             
             Multa objMulta;
-            while(resultSet.next()) { // Se ejecuta la misma cantidad de veces que filas tiene la tabla
+            while(rs.next()) { // Se ejecuta la misma cantidad de veces que filas tiene la tabla
                 objMulta = new Multa();
-                String dni       = resultSet.getString("dni");
-                String tipoMulta = resultSet.getString("tipo_multa");
-                Double multa     = resultSet.getDouble("monto");
-                String correo    = resultSet.getString("correo");
-                int punto        = resultSet.getInt("punto");
+                int idMulta      = rs.getInt("id_multa");
+                String dni       = rs.getString("dni");
+                String tipoMulta = rs.getString("tipo_multa");
+                Double multa     = rs.getDouble("monto");
+                String correo    = rs.getString("correo");
+                int punto        = rs.getInt("punto");
                 
+                objMulta.setIdMulta(idMulta);
                 objMulta.setDni(dni);
                 objMulta.setMulta(tipoMulta);
                 objMulta.setMonto(multa);
@@ -41,17 +43,27 @@ public class Servicio {
         return lstMultas;
     }
     
+    public Respuesta validar(Multa multa) {
+        Respuesta rpta = new Respuesta();
+        rpta.setCodigo(0);
+        if(multa.getMonto() > 1000) {
+            rpta.setCodigo(1);
+            rpta.setMsj("La multa no puede ser mayor a 1000 soles");
+            return rpta;
+        }
+        if(multa.getMulta().equalsIgnoreCase("Pico placa") && multa.getMonto() < 500 ) {
+            rpta.setCodigo(2);
+            rpta.setMsj("La multa para pico y placa no puede ser menor a 500");
+            return rpta;
+        }
+        return rpta;
+    }
+    
     public Respuesta insertarMulta(Multa multa) {
         Respuesta rpta = new Respuesta();
         try {
-            if(multa.getMonto() > 1000) {
-                rpta.setCodigo(1);
-                rpta.setMsj("La multa no puede ser mayor a 1000 soles");
-                return rpta;
-            }
-            if(multa.getMulta().equalsIgnoreCase("Pico placa") && multa.getMonto() < 500 ) {
-                rpta.setCodigo(2);
-                rpta.setMsj("La multa para pico y placa no puede ser menor a 500");
+            rpta = validar(multa);
+            if(rpta.getCodigo() != 0) {
                 return rpta;
             }
             Connection con = Conexion.startConeccion();
@@ -69,6 +81,50 @@ public class Servicio {
             e.printStackTrace();
             rpta.setCodigo(-1);
             rpta.setMsj("Hubo un error al registrar la multa.");
+        }
+        return rpta;
+    }
+    
+    public Respuesta actualizarMulta(Multa multa) {
+        Respuesta rpta = new Respuesta();
+        try {
+            rpta = validar(multa);
+            if(rpta.getCodigo() != 0) {
+                return rpta;
+            }
+            Connection con = Conexion.startConeccion();
+            String query = "UPDATE `sat`.`multa` SET tipo_multa = ?, monto = ?, correo = ?, punto = ? WHERE id_multa = ?";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, multa.getMulta());
+            ps.setDouble(2, multa.getMonto());
+            ps.setString(3, multa.getCorreo());
+            ps.setInt(4, multa.getPunto());
+            ps.setInt(5, multa.getIdMulta());
+            ps.executeUpdate();
+            rpta.setCodigo(0); // 0 = no error
+            rpta.setMsj("Se actualizó la multa.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            rpta.setCodigo(-1);
+            rpta.setMsj("Hubo un error al actualizar la multa.");
+        }
+        return rpta;
+    }
+            
+    public Respuesta borrarMulta(int idMulta) {
+        Respuesta rpta = new Respuesta();
+        try {
+            Connection con = Conexion.startConeccion();
+            String query = "DELETE FROM `sat`.`multa` WHERE id_multa = ?";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, idMulta);
+            ps.executeUpdate();
+            rpta.setCodigo(0); // 0 = no error
+            rpta.setMsj("Se borró la multa.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            rpta.setCodigo(-1);
+            rpta.setMsj("Hubo un error al borrar la multa.");
         }
         return rpta;
     }
