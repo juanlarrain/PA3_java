@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import model.Multa;
 import model.Respuesta;
@@ -66,14 +67,27 @@ public class Servicio {
             if(rpta.getCodigo() != 0) {
                 return rpta;
             }
+            int cantidadMultas = getCantidadMultasByDNI_Fecha(multa.getDni(), multa.getFecha());
+            if(cantidadMultas == -1) {
+                rpta.setCodigo(-1);
+                rpta.setMsj("Hubo un error al contabilizar las multas");
+                return rpta;
+            }
+            System.err.println("cantidadMultas::: "+cantidadMultas);
+            if(cantidadMultas >= 2) {
+                rpta.setCodigo(3);
+                rpta.setMsj("No se puede registrar mas de 2 multas por día");
+                return rpta;
+            }
             Connection con = Conexion.startConeccion();
-            String query = "INSERT INTO `sat`.`multa` (`dni`, `tipo_multa`, `monto`, `correo`, `punto`) VALUES (?, ?, ?, ?, ?)";
+            String query = "INSERT INTO `sat`.`multa` (`dni`, `tipo_multa`, `monto`, `correo`, `punto`, `fec_regi`) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, multa.getDni());
             ps.setString(2, multa.getMulta());
             ps.setDouble(3, multa.getMonto());
             ps.setString(4, multa.getCorreo());
             ps.setInt(5, multa.getPunto());
+            ps.setDate(6, new java.sql.Date(multa.getFecha().getTime()) );
             ps.executeUpdate();
             rpta.setCodigo(0); // 0 = no error
             rpta.setMsj("Se registró la multa.");
@@ -127,5 +141,26 @@ public class Servicio {
             rpta.setMsj("Hubo un error al borrar la multa.");
         }
         return rpta;
+    }
+    
+    public int getCantidadMultasByDNI_Fecha(String dni, Date fecha) {
+        try {
+            //
+            Connection con = Conexion.startConeccion();
+            String query = "SELECT COUNT(1) AS cantidad FROM `multa` WHERE dni = ? AND DATE(fec_regi) = ?";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, dni);
+            ps.setDate(2, new java.sql.Date(fecha.getTime()));
+            System.out.println("QUERY A EJECUTAR: "+ps);
+            ResultSet rs = ps.executeQuery();
+            int cantidadMultas = -1;
+            while(rs.next()) {
+                cantidadMultas = rs.getInt("cantidad");
+            }
+            return cantidadMultas;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 }
