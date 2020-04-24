@@ -52,28 +52,82 @@ public class Servicio {
             rpta.setMsj("La multa no puede ser mayor a 1000 soles");
             return rpta;
         }
-        if(multa.getMulta().equalsIgnoreCase("Pico placa") && multa.getMonto() < 500 ) {
+        if(multa.getMulta().equalsIgnoreCase("Pico placa") && multa.getMonto() <= 130 | multa.getMonto()>= 350) {
+            rpta.setCodigo(1);
+            rpta.setMsj("No se encuentra en el rango 130 a 350");
+            return rpta;
+        }
+        
+        if(multa.getMulta().equalsIgnoreCase("Alta velocidad") && multa.getMonto() <=400 | multa.getMonto()>= 570) {
             rpta.setCodigo(2);
-            rpta.setMsj("La multa para pico y placa no puede ser menor a 500");
+            rpta.setMsj("No se encuentra en el rango 400 a 570");
+            return rpta;
+        }
+         if(multa.getMulta().equalsIgnoreCase("Luz roja") && multa.getMonto() <=130 | multa.getMonto()>= 250) {
+            rpta.setCodigo(2);
+            rpta.setMsj("No se encuentra en el rango 130 a 250");
+            return rpta;
+        }
+          if(multa.getMulta().equalsIgnoreCase("Mal estacionado") && multa.getMonto() <=100 | multa.getMonto()>= 190) {
+            rpta.setCodigo(2);
+            rpta.setMsj("No se encuentra en el rango 100 a 190");
             return rpta;
         }
         return rpta;
+    }
+    
+     public Respuesta validarpunto(Multa multa) {
+        Respuesta rpta = new Respuesta();
+        rpta.setCodigo(0);
+        if(multa.getPunto() > 1000) {
+            rpta.setCodigo(1);
+            rpta.setMsj("La multa no puede ser mayor a $1000 soles");
+            return rpta;
+        }
+        return rpta;
+    }
+    
+    public int getCantidadMultasumadas(String dni) {
+        try {
+            Connection con = Conexion.startConeccion();
+            String query = "select sum(punto)as suma from multa where dni = ?";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, dni);
+            System.out.println("QUERY A EJECUTAR: "+ps);
+            ResultSet rs = ps.executeQuery();
+            int sumapunto = -2;
+            while(rs.next()) {
+                sumapunto = rs.getInt("suma");
+            }
+            return sumapunto;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
     
     public Respuesta insertarMulta(Multa multa) {
         Respuesta rpta = new Respuesta();
         try {
             rpta = validar(multa);
-            if(rpta.getCodigo() != 0) {
+            if (rpta.getCodigo() != 0) {
                 return rpta;
             }
-            int cantidadMultas = getCantidadMultasByDNI_Fecha(multa.getDni(), multa.getFecha());
-            if(cantidadMultas == -1) {
+            int sumapunto = getCantidadMultasumadas(multa.getDni());
+            if (sumapunto+multa.getPunto() >= 100) {
                 rpta.setCodigo(-1);
-                rpta.setMsj("Hubo un error al contabilizar las multas");
+                rpta.setMsj("A superado los 100 puntos");
                 return rpta;
             }
-            System.err.println("cantidadMultas::: "+cantidadMultas);
+            System.err.println("Cantidad de puntos:  " + sumapunto);
+            int cantidadMultas = getCantidadMultasByDNI_Fecha(multa.getDni(), multa.getFecha());
+            if (cantidadMultas == -1) {
+                rpta.setCodigo(-1);
+                rpta.setMsj("Error al contabilizar las multas");
+                return rpta;
+            }
+            
+            System.err.println("Cantidad de Multas: "+cantidadMultas);
             if(cantidadMultas >= 2) {
                 rpta.setCodigo(3);
                 rpta.setMsj("No se puede registrar mas de 2 multas por día");

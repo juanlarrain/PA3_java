@@ -65,7 +65,7 @@ public class Registro extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         txtDNI = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        cmbTipos = new javax.swing.JComboBox<>();
+        cmbTipos = new javax.swing.JComboBox<String>();
         jLabel3 = new javax.swing.JLabel();
         txtMonto = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
@@ -88,7 +88,7 @@ public class Registro extends javax.swing.JFrame {
 
         jLabel2.setText("Tipo");
 
-        cmbTipos.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "::: Selec. Multa :::", "Alta velocidad", "Luz roja", "Mal estacionado", "Pico placa" }));
+        cmbTipos.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "::: Selec. Multa :::", "Alta velocidad", "Luz roja", "Mal estacionado", "Pico placa" }));
 
         jLabel3.setText("Monto");
 
@@ -150,6 +150,11 @@ public class Registro extends javax.swing.JFrame {
         jLabel6.setText("Fecha");
 
         txtFecha.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter()));
+        txtFecha.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtFechaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -274,6 +279,7 @@ public class Registro extends javax.swing.JFrame {
                 btnRegistrar.setEnabled(true);
             }
         });
+        txtFecha.setText(fechaActual());
     }
     
     int idMultaModif = 0;
@@ -411,6 +417,15 @@ public class Registro extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnReporte1ActionPerformed
 
+    private void txtFechaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFechaActionPerformed
+
+
+        
+        
+
+// TODO add your handling code here:
+    }//GEN-LAST:event_txtFechaActionPerformed
+
     private void limpiarForm() {
         txtDNI.setText(null);
         cmbTipos.setSelectedIndex(0);
@@ -421,7 +436,14 @@ public class Registro extends javax.swing.JFrame {
         btnBorrar.setEnabled(false);
         txtDNI.setEnabled(true);
     }
-    
+    public static String fechaActual(){
+
+    Date fecha=new Date();
+    SimpleDateFormat formatoFecha=new SimpleDateFormat("dd/MM/YYYY");
+
+    return formatoFecha.format(fecha);
+
+}
     private void llenarTabla() {
         DefaultTableModel model = new DefaultTableModel(new String[]{"#", "DNI", "Multa", "Monto", "Correo", "Punto", "Id"}, 0);
         
@@ -478,6 +500,7 @@ public class Registro extends javax.swing.JFrame {
             }
         });
     }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBorrar;
