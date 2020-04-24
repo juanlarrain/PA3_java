@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Date;
+
 public class Multa {
     
     private int idMulta;
@@ -8,6 +10,7 @@ public class Multa {
     private Double monto;
     private String correo;
     private int punto;
+    private Date fecha;
 
     public String getDni() {
         return dni;
@@ -55,5 +58,13 @@ public class Multa {
 
     public void setIdMulta(int idMulta) {
         this.idMulta = idMulta;
+    }
+
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
     }
 }
